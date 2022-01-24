@@ -1,0 +1,102 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+Obtaining data from a source
+
+```{r}
+Data <- read.csv("D:/ALDA 2021/CRYSTAL System-Data Science project/Crystal-DS Project 3/TEC-DS -Week materials/Week 3/Data.csv")
+head(Data)
+Info.by.state <- read.csv("D:/ALDA 2021/CRYSTAL System-Data Science project/Crystal-DS Project 3/TEC-DS -Week materials/Week 3/Info by state.csv")
+head(Info.by.state)
+```
+
+Q1: create a new dataset where these information is displayed 
+```{r}
+New_data<-dplyr::full_join(Data,Info.by.state,by="Country")
+head(New_data)
+View(New_data)
+```
+
+The function is not working because we have missing values which are removing observations and by this way making less observations.
+So we need to deal with missing values NA.
+```{r}
+library(ggplot2)
+GGally::ggpairs(New_data,mapping = aes(color = Country),na.omit=TRUE)
+```
+
+```{r}
+which(is.na(New_data$Age))# will display positions of NA in Age variable
+```
+```{r}
+# let fill these NA with the average age
+# first we will create an index vector 
+Ind_1<-which(is.na(New_data$Age))
+
+# then we will substitute NA-s with teh average of the Age variable
+New_data$Age[Ind_1]=mean(New_data$Age)
+New_data$Age[Ind_1]
+```
+Q:What is happening?
+A: some functions such as the mean () are not performing if there are missing observations. So we need to add the argument na.rm=TRUE
+
+```{r}
+New_data$Age[Ind_1]=mean(New_data$Age,na.rm = TRUE)
+New_data$Age[Ind_1]
+```
+The same we will do for the other variables when we have missing values.
+
+```{r}
+Ind_2<-which(is.na(New_data$Salary))
+# then we will substitute NA-s with the average of the Salary variable
+Ind_2
+```
+
+```{r}
+New_data$Age[Ind_2]=mean(New_data$Salary,na.rm = TRUE)
+New_data$Age[Ind_2]
+```
+
+```{r}
+Ind_3<-which(is.na(New_data$Purchased))
+# then we will substitute NA-s with the mode of the Purchased variable
+Ind_3
+```
+
+
+Another way of showing missing values NA in all variables of teh matrix:
+```{r}
+# apply(is.na(New_data), 2, which)
+```
+
+Unfortunately the function here is not working because of the small number of observation
+```{r}
+GGally::ggpairs(New_data,mapping = aes(color=Country))
+GGally::ggpairs(New_data[,c(2,3)],mapping = aes(color=Purchased))
+
+```
+
+```{r}
+GGally::ggpairs(New_data)
+```
+
+Q:Use information for states : Italy and Greece. Obtain some results
+
+Extract information for Italy and Greece:
+
+```{r}
+library(dplyr)
+Data_2<-New_data %>% filter(Country==c("Italy","Greece"))
+Data_2
+```
+
+Q:Create a new dataset only for states Italy and Greece for individual observations (do
+not display state information such as life expectancy, gdp, population)
+
+```{r}
+Data_3<- Data_2 %>% select (Country,Age, Salary, Purchased)
+Data_3
+```
+
